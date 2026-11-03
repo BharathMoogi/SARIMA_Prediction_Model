@@ -77,12 +77,35 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+IS_VERCEL = 'VERCEL' in os.environ or 'AWS_LAMBDA_FUNCTION_NAME' in os.environ
+
+if IS_VERCEL:
+    import shutil
+    import tempfile
+    
+    tmp_dir = Path(tempfile.gettempdir())
+    db_path = tmp_dir / 'db.sqlite3'
+    seed_db = BASE_DIR / 'data' / 'initial_db.sqlite3'
+    
+    if not db_path.exists() and seed_db.exists():
+        try:
+            shutil.copyfile(seed_db, db_path)
+        except Exception as e:
+            print(f"Warning: Failed to copy initial database: {e}")
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': db_path,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

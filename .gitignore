@@ -31,6 +31,7 @@ wheels/
 *.sqlite3
 db.sqlite3
 backend/db.sqlite3
+!backend/data/initial_db.sqlite3
 
 # Test model artifacts (keep production sarima_model.pkl)
 backend/ml_models/sarima_test_model.pkl
