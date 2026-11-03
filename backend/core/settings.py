@@ -19,9 +19,16 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('true', '1', 't')
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
     if host.strip()
 ]
+# Automatically allow Vercel deployment domains and internal service hosts
+if 'VERCEL' in os.environ or 'VERCEL_URL' in os.environ:
+    if '.vercel.app' not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append('.vercel.app')
+    vercel_host = os.getenv('VERCEL_URL')
+    if vercel_host and vercel_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(vercel_host)
 
 # Application definition
 INSTALLED_APPS = [
